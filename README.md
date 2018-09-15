@@ -4,7 +4,8 @@ Extra functions for working with `Posix` values from `elm/time`.
 
 ## Overview
 
-- Create `Posix` values from parts: `Parts`, `partsToPosix`
-- Shift time: `floor`, `ceiling`, `add`
-- Find elapsed time: `diff`
+- Create `Posix` values: `Parts`, `partsToPosix`
+- Difference between times: `diff`
+- Shift times: `add`, `floor`, `ceiling`
 - Create lists: `range`
+- Time zone offsets: `toOffset`
