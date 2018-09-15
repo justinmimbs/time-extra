@@ -1,4 +1,4 @@
-module Tests exposing (posixToParts, suite)
+module Tests exposing (suite)
 
 import Shim exposing (Expectation, Test, describe, equal, test)
 import Time exposing (Month(..), Posix, Zone)
@@ -14,6 +14,7 @@ suite =
         , test_floor
         , test_ceiling
         , test_add
+        , test_diff
         , test_range
         ]
 
@@ -326,6 +327,79 @@ test_add =
                 , ( Year, 5, Parts 2004 Dec 31 23 59 59 999 )
                 , ( Week, 8, Parts 2000 Feb 25 23 59 59 999 )
                 ]
+        ]
+
+
+test_diff : Test
+test_diff =
+    let
+        toTest : String -> Parts -> Parts -> Int -> Interval -> Test
+        toTest name parts1 parts2 expected interval =
+            describe name
+                [ test "using local zone" <|
+                    \() -> Time.diff interval localZone (parts1 |> Time.partsToPosix localZone) (parts2 |> Time.partsToPosix localZone) |> equal expected
+                , test "using UTC" <|
+                    \() -> Time.diff interval Time.utc (parts1 |> Time.partsToPosix Time.utc) (parts2 |> Time.partsToPosix Time.utc) |> equal expected
+                ]
+    in
+    describe "diff"
+        [ describe "diff x x == 0" <|
+            cross
+                (\interval parts ->
+                    toTest (Debug.toString ( interval, parts )) parts parts 0 interval
+                )
+                intervals
+                [ Parts 1999 Dec 31 23 59 59 999
+                , Parts 2001 Jan 1 0 0 0 0
+                ]
+        , describe "diff a b == -(diff b a)" <|
+            let
+                parts1 =
+                    Parts 1999 Dec 31 23 59 59 999
+            in
+            List.map
+                (\( parts2, expected, interval ) ->
+                    describe (Debug.toString ( interval, expected ))
+                        [ toTest "`diff earlier later` returns positive numbers" parts1 parts2 expected interval
+                        , toTest "`diff later earlier` returns negative numbers" parts2 parts1 -expected interval
+                        ]
+                )
+                [ ( Parts 2000 Jan 1 0 0 0 499, 500, Millisecond )
+                , ( Parts 2000 Jan 1 0 0 1 499, 1500, Millisecond )
+                , ( Parts 2000 Jan 1 0 0 29 999, 30, Second )
+                , ( Parts 2000 Jan 1 0 1 29 999, 90, Second )
+                , ( Parts 2000 Jan 1 0 29 59 999, 30, Minute )
+                , ( Parts 2000 Jan 1 1 29 59 999, 90, Minute )
+                , ( Parts 2000 Jan 1 11 59 59 999, 12, Hour )
+                , ( Parts 2000 Jan 2 11 59 59 999, 36, Hour )
+                , ( Parts 2000 Jan 15 23 59 59 999, 15, Day )
+                , ( Parts 2000 Feb 29 23 59 59 999, 60, Day )
+                , ( Parts 2000 Jan 31 23 59 59 999, 1, Month )
+                , ( Parts 2000 Feb 29 23 59 59 999, 1, Month )
+                , ( Parts 2000 Apr 30 23 59 59 999, 3, Month )
+                , ( Parts 2001 Feb 28 23 59 59 999, 13, Month )
+                , ( Parts 2000 Mar 31 23 59 59 999, 1, Quarter )
+                , ( Parts 2000 Sep 30 23 59 59 999, 2, Quarter )
+                , ( Parts 2004 Dec 31 23 59 59 999, 5, Year )
+                , ( Parts 2000 Feb 25 23 59 59 999, 8, Week )
+                , ( Parts 2000 Jan 11 0 0 0 0, 2, Monday )
+                , ( Parts 2000 Jan 11 0 0 0 0, 2, Tuesday )
+                , ( Parts 2000 Jan 11 0 0 0 0, 1, Wednesday )
+                , ( Parts 2000 Jan 11 0 0 0 0, 1, Thursday )
+                , ( Parts 2000 Jan 11 0 0 0 0, 1, Friday )
+                , ( Parts 2000 Jan 11 0 0 0 0, 2, Saturday )
+                , ( Parts 2000 Jan 11 0 0 0 0, 2, Sunday )
+                ]
+        , describe "diffing Years returns a number of whole years as determined by calendar date (anniversary)"
+            [ toTest "1" (Parts 2000 Feb 29 12 30 30 500) (Parts 2001 Feb 28 12 30 30 500) 0 Year
+            , toTest "2" (Parts 2000 Feb 29 12 30 30 500) (Parts 2004 Feb 29 12 30 30 500) 4 Year
+            ]
+        , describe "diffing Months returns a number of whole months as determined by calendar date"
+            [ toTest "1" (Parts 2000 Jan 31 0 0 0 0) (Parts 2000 Feb 29 0 0 0 0) 0 Month
+            , toTest "2" (Parts 2000 Jan 31 0 0 0 0) (Parts 2000 Mar 31 0 0 0 0) 2 Month
+            , toTest "3" (Parts 2000 Jan 31 0 0 0 0) (Parts 2000 Apr 30 0 0 0 0) 2 Month
+            , toTest "4" (Parts 2000 Jan 31 0 0 0 0) (Parts 2001 Feb 28 0 0 0 0) 12 Month
+            ]
         ]
 
 
