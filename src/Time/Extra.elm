@@ -80,9 +80,8 @@ timeFromPosix zone posix =
 
     -- assuming `nyc` is a `Zone` for America/New_York
 
-> Aside: Time zone data is available in the package [justinmimbs/timezone-data][tzdata].
-> Using its `TimeZone` module, it's possible to verify the example above by
-> defining `nyc` as:
+**Note:** It's possible to verify the example above by using time zone data
+from the package [justinmimbs/timezone-data][tzdata] to define `nyc`:
 
     import TimeZone
 
