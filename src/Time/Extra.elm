@@ -1,5 +1,6 @@
 module Time.Extra exposing
-    ( Parts, partsToPosix, posixToParts
+    ( Parts, partsToPosix
+    , posixToParts
     , Interval(..)
     , diff
     , add, floor, ceiling
@@ -12,7 +13,12 @@ module Time.Extra exposing
 
 # Create
 
-@docs Parts, partsToPosix, posixToPart
+@docs Parts, partsToPosix
+
+
+# Convert
+
+@docs posixToParts
 
 
 # Intervals
@@ -179,8 +185,25 @@ partsToPosix zone { year, month, day, hour, minute, second, millisecond } =
             (millisecond |> clamp 0 999)
         )
 
-{-| Create a `Parts` from a `Posix` time and a specific time zone. 
-Uses the functions from the `Time` module to calculate each component.
+
+{-| Convert a `Posix` to a description of a time in a specific time zone. This
+is a convenience function for extracting parts of a time into a single record.
+
+    import Time exposing (Month(..), utc)
+    import Time.Extra exposing (Parts, partsToPosix, posixToParts)
+
+    posixToParts
+        utc
+        (partsToPosix utc (Parts 2018 Sep 26 14 30 0 0))
+        == { year = 2018
+           , month = Sep
+           , day = 26
+           , hour = 14
+           , minute = 30
+           , second = 0
+           , millisecond = 0
+           }
+
 -}
 posixToParts : Zone -> Posix -> Parts
 posixToParts zone posix =

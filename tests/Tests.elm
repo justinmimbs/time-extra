@@ -66,6 +66,7 @@ test_partsToPosix =
                 ]
         ]
 
+
 test_posixToParts : Test
 test_posixToParts =
     let
@@ -89,6 +90,7 @@ test_posixToParts =
                 , Time.millisToPosix 430010009090
                 ]
         ]
+
 
 test_toOffset : Test
 test_toOffset =
@@ -575,8 +577,6 @@ test_range =
         ]
 
 
-
--- HELPERS
 
 -- list
 
