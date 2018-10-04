@@ -1,5 +1,5 @@
 module Time.Extra exposing
-    ( Parts, partsToPosix
+    ( Parts, partsToPosix, posixToParts
     , Interval(..)
     , diff
     , add, floor, ceiling
@@ -12,7 +12,7 @@ module Time.Extra exposing
 
 # Create
 
-@docs Parts, partsToPosix
+@docs Parts, partsToPosix, posixToPart
 
 
 # Intervals
@@ -178,6 +178,20 @@ partsToPosix zone { year, month, day, hour, minute, second, millisecond } =
             (second |> clamp 0 59)
             (millisecond |> clamp 0 999)
         )
+
+{-| Create a `Parts` from a `Posix` time and a specific time zone. 
+Uses the functions from the `Time` module to calculate each component.
+-}
+posixToParts : Zone -> Posix -> Parts
+posixToParts zone posix =
+    { year = toYear zone posix
+    , month = toMonth zone posix
+    , day = toDay zone posix
+    , hour = toHour zone posix
+    , minute = toMinute zone posix
+    , second = toSecond zone posix
+    , millisecond = toMillis zone posix
+    }
 
 
 {-| Represents an interval of time.
