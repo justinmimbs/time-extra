@@ -3,7 +3,7 @@
     "name": "justinmimbs/time-extra",
     "summary": "Extra functions for working with Posix times from elm/time",
     "license": "BSD-3-Clause",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "exposed-modules": [
         "Time.Extra"
     ],
