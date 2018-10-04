@@ -10,6 +10,7 @@ suite : Test
 suite =
     describe "Time.Extra"
         [ test_partsToPosix
+        , test_posixToParts
         , test_toOffset
         , test_floor
         , test_ceiling
@@ -31,9 +32,9 @@ test_partsToPosix =
         toTest ( name, input, expected ) =
             describe name
                 [ test "using local zone" <|
-                    \() -> input |> Time.partsToPosix localZone |> posixToParts localZone |> equal expected
+                    \() -> input |> Time.partsToPosix localZone |> Time.posixToParts localZone |> equal expected
                 , test "using UTC" <|
-                    \() -> input |> Time.partsToPosix Time.utc |> posixToParts Time.utc |> equal expected
+                    \() -> input |> Time.partsToPosix Time.utc |> Time.posixToParts Time.utc |> equal expected
                 ]
     in
     describe "partsToPosix" <|
@@ -65,6 +66,29 @@ test_partsToPosix =
                 ]
         ]
 
+test_posixToParts : Test
+test_posixToParts =
+    let
+        toTest : ( String, Posix, Posix ) -> Test
+        toTest ( name, input, expected ) =
+            describe name
+                [ test "using local zone" <|
+                    \() -> input |> Time.posixToParts localZone |> Time.partsToPosix localZone |> equal expected
+                , test "using UTC" <|
+                    \() -> input |> Time.posixToParts Time.utc |> Time.partsToPosix Time.utc |> equal expected
+                ]
+    in
+    describe "posixToParts" <|
+        [ describe "is isomorphic with partsToPosix" <|
+            List.indexedMap
+                (\i posix -> toTest ( String.fromInt i, posix, posix ))
+                [ Time.millisToPosix 0
+                , Time.millisToPosix 9999999999999
+                , Time.millisToPosix 27810009000
+                , Time.millisToPosix 13045607890
+                , Time.millisToPosix 430010009090
+                ]
+        ]
 
 test_toOffset : Test
 test_toOffset =
@@ -125,9 +149,9 @@ test_floor =
         toTest ( interval, input, expected ) =
             describe (Debug.toString interval)
                 [ test "using local zone" <|
-                    \() -> input |> Time.partsToPosix localZone |> Time.floor interval localZone |> posixToParts localZone |> equal expected
+                    \() -> input |> Time.partsToPosix localZone |> Time.floor interval localZone |> Time.posixToParts localZone |> equal expected
                 , test "using UTC" <|
-                    \() -> input |> Time.partsToPosix Time.utc |> Time.floor interval Time.utc |> posixToParts Time.utc |> equal expected
+                    \() -> input |> Time.partsToPosix Time.utc |> Time.floor interval Time.utc |> Time.posixToParts Time.utc |> equal expected
                 , test "is idempotent" <|
                     \() -> input |> Time.partsToPosix localZone |> expectIdempotence (Time.floor interval localZone)
                 ]
@@ -190,9 +214,9 @@ test_ceiling =
         toTest ( interval, input, expected ) =
             describe (Debug.toString interval)
                 [ test "using local zone" <|
-                    \() -> input |> Time.partsToPosix localZone |> Time.ceiling interval localZone |> posixToParts localZone |> equal expected
+                    \() -> input |> Time.partsToPosix localZone |> Time.ceiling interval localZone |> Time.posixToParts localZone |> equal expected
                 , test "using UTC" <|
-                    \() -> input |> Time.partsToPosix Time.utc |> Time.ceiling interval Time.utc |> posixToParts Time.utc |> equal expected
+                    \() -> input |> Time.partsToPosix Time.utc |> Time.ceiling interval Time.utc |> Time.posixToParts Time.utc |> equal expected
                 , test "is idempotent" <|
                     \() -> input |> Time.partsToPosix localZone |> expectIdempotence (Time.ceiling interval localZone)
                 ]
@@ -276,9 +300,9 @@ test_add =
         toTest name f input expected =
             describe name
                 [ test "using local zone" <|
-                    \() -> input |> Time.partsToPosix localZone |> f localZone |> posixToParts localZone |> equal expected
+                    \() -> input |> Time.partsToPosix localZone |> f localZone |> Time.posixToParts localZone |> equal expected
                 , test "using UTC" <|
-                    \() -> input |> Time.partsToPosix Time.utc |> f Time.utc |> posixToParts Time.utc |> equal expected
+                    \() -> input |> Time.partsToPosix Time.utc |> f Time.utc |> Time.posixToParts Time.utc |> equal expected
                 ]
     in
     describe "add"
@@ -412,12 +436,12 @@ test_range =
                 [ test "using local zone" <|
                     \() ->
                         Time.range interval step localZone (Time.partsToPosix localZone start) (Time.partsToPosix localZone until)
-                            |> List.map (posixToParts localZone)
+                            |> List.map (Time.posixToParts localZone)
                             |> equal expected
                 , test "using UTC" <|
                     \() ->
                         Time.range interval step Time.utc (Time.partsToPosix Time.utc start) (Time.partsToPosix Time.utc until)
-                            |> List.map (posixToParts Time.utc)
+                            |> List.map (Time.posixToParts Time.utc)
                             |> equal expected
                 ]
     in
@@ -553,20 +577,6 @@ test_range =
 
 
 -- HELPERS
-
-
-posixToParts : Zone -> Posix -> Parts
-posixToParts zone posix =
-    { year = Time.toYear zone posix
-    , month = Time.toMonth zone posix
-    , day = Time.toDay zone posix
-    , hour = Time.toHour zone posix
-    , minute = Time.toMinute zone posix
-    , second = Time.toSecond zone posix
-    , millisecond = Time.toMillis zone posix
-    }
-
-
 
 -- list
 
