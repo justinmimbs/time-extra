@@ -3,7 +3,7 @@
     "name": "justinmimbs/time-extra",
     "summary": "Extra functions for working with Posix times from elm/time",
     "license": "BSD-3-Clause",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "exposed-modules": [
         "Time.Extra"
     ],
@@ -11,7 +11,7 @@
     "dependencies": {
         "elm/core": "1.0.0 <= v < 2.0.0",
         "elm/time": "1.0.0 <= v < 2.0.0",
-        "justinmimbs/date": "3.1.0 <= v < 4.0.0"
+        "justinmimbs/date": "3.1.0 <= v < 5.0.0"
     },
     "test-dependencies": {}
 }
