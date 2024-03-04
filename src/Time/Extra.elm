@@ -2,6 +2,7 @@ module Time.Extra exposing
     ( Parts, partsToPosix
     , posixToParts
     , Interval(..)
+    , compare
     , diff
     , add, floor, ceiling
     , range
@@ -24,6 +25,11 @@ module Time.Extra exposing
 # Intervals
 
 @docs Interval
+
+
+## Comparison
+
+@docs compare
 
 
 ## Difference
@@ -317,6 +323,20 @@ toMonths zone posix =
             ((toDay zone posix |> toFloat) + toFractionalDay zone posix) / 100
     in
     wholeMonths + fractionalMonth
+
+
+{-| Compare the first time to the second time.
+
+    import Time
+    import Time.Extra as Time
+
+    Time.compare (Time.millisToPosix 0) (Time.millisToPosix 1000)
+        == LT
+
+-}
+compare : Posix -> Posix -> Order
+compare a b =
+    Basics.compare (Time.posixToMillis a) (Time.posixToMillis b)
 
 
 {-| Get the difference, as a number of whole intervals, between two times.
