@@ -17,6 +17,7 @@ suite =
         , test_add
         , test_diff
         , test_range
+        , test_compare
         ]
 
 
@@ -574,6 +575,25 @@ test_range =
               test ("length: " ++ String.fromInt expectedLength) <|
                 \() -> Time.range Day 1 Time.utc start until |> List.length |> equal expectedLength
             ]
+        ]
+
+
+test_compare : Test
+test_compare =
+    let
+        a =
+            Time.millisToPosix 0
+
+        b =
+            Time.millisToPosix 100
+    in
+    describe "compare"
+        [ test "when the frist time is lesser than the second" <|
+            \() -> equal LT (Time.compare a b)
+        , test "when the first time is greater than the second" <|
+            \() -> equal GT (Time.compare b a)
+        , test "when the two times are equal" <|
+            \() -> equal EQ (Time.compare a a)
         ]
 
 
